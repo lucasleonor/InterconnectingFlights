@@ -1,4 +1,4 @@
-package com.ryanair.task.interconnectingflights.integration;
+package com.ryanair.task.interconnectingflights.service;
 
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;

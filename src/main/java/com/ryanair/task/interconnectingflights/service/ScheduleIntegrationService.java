@@ -1,4 +1,4 @@
-package com.ryanair.task.interconnectingflights.integration;
+package com.ryanair.task.interconnectingflights.service;
 
 import com.ryanair.task.interconnectingflights.dto.Schedule;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,9 +7,9 @@ import org.springframework.stereotype.Service;
 import java.util.Set;
 
 @Service
-public class ScheduleIntegration extends Integration {
+public class ScheduleIntegrationService extends Integration {
 
-    public ScheduleIntegration(@Value("${ryanair.services.schedule}") final String scheduleUrl) {
+    public ScheduleIntegrationService(@Value("${ryanair.services.schedule}") final String scheduleUrl) {
         super(scheduleUrl);
     }
 

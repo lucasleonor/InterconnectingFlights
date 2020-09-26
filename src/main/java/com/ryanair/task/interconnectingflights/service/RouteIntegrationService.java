@@ -1,16 +1,17 @@
-package com.ryanair.task.interconnectingflights.integration;
+package com.ryanair.task.interconnectingflights.service;
 
 import com.ryanair.task.interconnectingflights.dto.Route;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class RouteIntegration extends Integration {
+public class RouteIntegrationService extends Integration {
 
-    public RouteIntegration(@Value("${ryanair.services.route}") final String routeUri) {
+    public RouteIntegrationService(@Value("${ryanair.services.route}") final String routeUri) {
         super(routeUri);
     }
 
@@ -23,5 +24,17 @@ public class RouteIntegration extends Integration {
                         && null == route.getConnectingAirport()
                         && "RYANAIR".equals(route.getOperator())
         ).collect(Collectors.toSet());
+    }
+
+    public Set<String> getConnectingAirports(final String departure, final String arrival) {
+        Set<Route> departureRoutes = findRoutes(departure, null);
+        Set<Route> arrivalRoutes = findRoutes(null, arrival);
+
+        Map<String, Route> allAirportsAvailableFromDeparture = departureRoutes.stream().collect(Collectors.toMap(Route::getAirportTo, route -> route));
+        return arrivalRoutes.stream()
+                .filter(route -> allAirportsAvailableFromDeparture.containsKey(route.getAirportFrom()))
+                .map(Route::getAirportFrom)
+                .collect(Collectors.toSet());
+
     }
 }

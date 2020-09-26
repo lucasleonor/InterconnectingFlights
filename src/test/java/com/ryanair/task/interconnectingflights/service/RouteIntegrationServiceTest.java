@@ -1,4 +1,4 @@
-package com.ryanair.task.interconnectingflights.integration;
+package com.ryanair.task.interconnectingflights.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +13,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockSettings;
+import org.mockito.internal.util.collections.Sets;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,10 +24,14 @@ import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-class RouteIntegrationTest {
+class RouteIntegrationServiceTest {
     private static MockWebServer mockBackEnd;
-    private RouteIntegration routeIntegration;
+    private RouteIntegrationService routeIntegrationService;
     private static ObjectMapper objectMapper;
     private String departure;
     private String arrival;
@@ -47,7 +53,7 @@ class RouteIntegrationTest {
     void setUp() {
         String baseUrl = String.format("http://localhost:%s",
                 mockBackEnd.getPort());
-        routeIntegration = new RouteIntegration(baseUrl);
+        routeIntegrationService = new RouteIntegrationService(baseUrl);
         departure = RandomString.make(9);
         arrival = RandomString.make(9);
         expectedRoutes = new ArrayList<>();
@@ -74,18 +80,17 @@ class RouteIntegrationTest {
                 .setBody(objectMapper.writeValueAsString(response))
                 .addHeader("Content-Type", "application/json"));
 
-        Set<Route> actual = routeIntegration.findRoutes((expectDeparture) ? departure : null, (expectArrival) ? arrival : null);
+        Set<Route> actual = routeIntegrationService.findRoutes((expectDeparture) ? departure : null, (expectArrival) ? arrival : null);
         RecordedRequest recordedRequest = mockBackEnd.takeRequest();
         assertThat(recordedRequest.getMethod(), is("GET"));
         assertThat(recordedRequest.getPath(), is("/"));
         assertThat(actual, Matchers.containsInAnyOrder(expectedRoutes.toArray(new Route[0])));
     }
 
-    @NotNull
     private List<Route> createRoutes(final boolean expectDeparture, final boolean expectArrival) {
-        Route bothMatch = new Route(departure, arrival, null, "RYANAIR");
-        Route onlyDepartureMatch = new Route(departure, RandomString.make(), null, "RYANAIR");
-        Route onlyArrivalMatch = new Route(RandomString.make(), arrival, null, "RYANAIR");
+        Route bothMatch = createRoute(departure, arrival);
+        Route onlyDepartureMatch = createRoute(departure, RandomString.make());
+        Route onlyArrivalMatch = createRoute(RandomString.make(), arrival);
 
         expectedRoutes.add(bothMatch);
         if (!expectDeparture) expectedRoutes.add(onlyArrivalMatch);
@@ -99,5 +104,36 @@ class RouteIntegrationTest {
                 onlyDepartureMatch,
                 bothMatch
         );
+    }
+
+    @Test
+    public void getConnectingAirports() {
+        routeIntegrationService = mock(RouteIntegrationService.class, CALLS_REAL_METHODS);
+        String departure = RandomString.make();
+        String arrival = RandomString.make();
+        String connecting = RandomString.make();
+
+        mockRoutes(departure, arrival, connecting);
+
+        Set<String> connectingAirports = routeIntegrationService.getConnectingAirports(departure, arrival);
+        assertThat(connectingAirports, Matchers.containsInAnyOrder(connecting));
+    }
+
+    private void mockRoutes(final String departure, final String arrival, final String connecting) {
+        doReturn(Sets.newSet(
+                createRoute(departure, arrival),
+                createRoute(departure, RandomString.make()),
+                createRoute(departure, connecting)
+                )
+        ).when(routeIntegrationService).findRoutes(departure, null);
+        doReturn(Sets.newSet(
+                createRoute(departure, arrival),
+                createRoute(RandomString.make(9), arrival),
+                createRoute(connecting, arrival)
+        )).when(routeIntegrationService).findRoutes(null, arrival);
+    }
+
+    private Route createRoute(final String departure, final String arrival) {
+        return new Route(departure, arrival, null, "RYANAIR");
     }
 }

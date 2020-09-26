@@ -1,4 +1,4 @@
-package com.ryanair.task.interconnectingflights.integration;
+package com.ryanair.task.interconnectingflights.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,10 +24,10 @@ import java.util.Set;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-class ScheduleIntegrationTest {
+class ScheduleIntegrationServiceTest {
     private static MockWebServer mockBackEnd;
     private static ObjectMapper objectMapper;
-    private ScheduleIntegration scheduleIntegration;
+    private ScheduleIntegrationService scheduleIntegrationService;
     private int month;
     private String year;
     private String departure;
@@ -48,7 +48,7 @@ class ScheduleIntegrationTest {
     @BeforeEach
     void setUp() {
         String baseUrl = String.format("http://localhost:%s", mockBackEnd.getPort());
-        scheduleIntegration = new ScheduleIntegration(baseUrl);
+        scheduleIntegrationService = new ScheduleIntegrationService(baseUrl);
         month = new Random().nextInt();
         year = RandomString.make();
         departure = RandomString.make();
@@ -62,7 +62,7 @@ class ScheduleIntegrationTest {
                 .setBody(objectMapper.writeValueAsString(response))
                 .addHeader("Content-Type", "application/json"));
 
-        Set<Schedule> actual = scheduleIntegration.findSchedules(departure, arrival, year, String.valueOf(month));
+        Set<Schedule> actual = scheduleIntegrationService.findSchedules(departure, arrival, year, String.valueOf(month));
 
         RecordedRequest recordedRequest = mockBackEnd.takeRequest();
         assertThat(recordedRequest.getMethod(), is("GET"));
