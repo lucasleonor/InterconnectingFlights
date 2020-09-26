@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -22,7 +22,7 @@ public class InterconnectingFlightsController {
         this.service = service;
     }
 
-    private InterconnectingFlightsService service;
+    private final InterconnectingFlightsService service;
 
     @RequestMapping(method = RequestMethod.GET)
     @ApiResponses(value = {
@@ -31,8 +31,9 @@ public class InterconnectingFlightsController {
             @ApiResponse(code = 500, message = "Internal Server Error"),
             @ApiResponse(code = 503, message = "Service Unavailable")
     })
-    public Set<Interconnection> interconnections(String departure, String arrival,
-                                                 LocalDateTime departureDateTime, LocalDateTime arrivalDateTime) {
+    public Set<Interconnection> interconnections(@RequestParam String departure, @RequestParam String arrival,
+                                                 @RequestParam LocalDateTime departureDateTime,
+                                                 @RequestParam LocalDateTime arrivalDateTime) {
         return service.findFlights(departure, arrival, departureDateTime, arrivalDateTime);
     }
 }

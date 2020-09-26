@@ -5,24 +5,19 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serializable;
-import java.util.Set;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@ToString
 public class Route implements Serializable {
     private String airportFrom;
     private String airportTo;
     private String connectingAirport;
-    private Boolean newRoute;
-    private Boolean seasonalRoute;
     private String operator;
-    private String group;
-    private Set<String> similarArrivalAirportCodes;
-    private Set<String> tags;
-    private String carrierCode;
 }
