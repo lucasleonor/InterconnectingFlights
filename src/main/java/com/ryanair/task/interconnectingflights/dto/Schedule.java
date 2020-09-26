@@ -23,7 +23,7 @@ public class Schedule implements Serializable {
     @AllArgsConstructor
     @NoArgsConstructor
     @EqualsAndHashCode
-    private static class Day {
+    public static class Day {
         private Integer day;
         private List<Flight> flights;
 
@@ -34,7 +34,7 @@ public class Schedule implements Serializable {
     @AllArgsConstructor
     @NoArgsConstructor
     @EqualsAndHashCode
-    private static class Flight implements Serializable {
+    public static class Flight implements Serializable {
 
         private String number;
         private String departureTime;

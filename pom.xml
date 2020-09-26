@@ -17,6 +17,7 @@
     <properties>
         <java.version>11</java.version>
         <springfox.version>3.0.0</springfox.version>
+        <okhttp3.version>4.9.0</okhttp3.version>
     </properties>
 
     <dependencies>
@@ -58,6 +59,18 @@
             <groupId>io.springfox</groupId>
             <artifactId>springfox-boot-starter</artifactId>
             <version>${springfox.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>${okhttp3.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver</artifactId>
+            <version>${okhttp3.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
