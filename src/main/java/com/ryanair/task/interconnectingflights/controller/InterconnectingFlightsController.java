@@ -5,15 +5,16 @@ import com.ryanair.task.interconnectingflights.service.InterconnectingFlightsSer
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.Set;
 
-@Controller
+@RestController
 @RequestMapping("interconnections")
 public class InterconnectingFlightsController {
 
@@ -31,9 +32,9 @@ public class InterconnectingFlightsController {
             @ApiResponse(code = 500, message = "Internal Server Error"),
             @ApiResponse(code = 503, message = "Service Unavailable")
     })
-    public Set<Interconnection> interconnections(@RequestParam String departure, @RequestParam String arrival,
-                                                 @RequestParam LocalDateTime departureDateTime,
-                                                 @RequestParam LocalDateTime arrivalDateTime) {
+    public Set<Interconnection> findFlights(@RequestParam String departure, @RequestParam String arrival,
+                                            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime departureDateTime,
+                                            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime arrivalDateTime) {
         return service.findFlights(departure, arrival, departureDateTime, arrivalDateTime);
     }
 }
