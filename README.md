@@ -1,8 +1,8 @@
-##Ryanair - Task 2 - Java/Spring - Interconnecting Flights
+## Ryanair - Task 2 - Java/Spring - Interconnecting Flights
 Write a Spring Boot based RESTful API application which serves information about possible direct
 and interconnected flights (maximum 1 stop) based on the data consumed from external APIs.
 
-####Given:
+#### Given:
 The application can consume data from the following two microservices:
  - **Routes API:** https://services-api.ryanair.com/locate/3/routes which returns a list of all available routes based
  on the airport's IATA codes. Please note that only routes with: connectingAirport set to null and operator set to 
@@ -67,7 +67,7 @@ For example (https://servicesapi.ryanair.com/timtbl/3/schedules/DUB/WRO/years/20
     ]
 }
 ```
-####Requirements:
+#### Requirements:
  - The source code of the application should be delivered (ideally shared through GitHub or Bitbucket).
  - The application should build to an executable JAR file.
  - The application should response to following request URI with given query parameters:<br>
