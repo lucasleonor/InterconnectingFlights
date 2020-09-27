@@ -15,8 +15,12 @@ public class RouteIntegrationService extends Integration {
         super(routeUri);
     }
 
+    protected Set<Route> clientGetSet() {
+        return get(null).bodyToFlux(Route.class).toStream().collect(Collectors.toSet());
+    }
+
     public Set<Route> findRoutes(String departureAirport, String arrivalAirport) {
-        Set<Route> routes = clientGet(Route.class);
+        Set<Route> routes = clientGetSet();
         //Client side filtering because API doesn't seem to support query filtering
         return routes.stream().filter(
                 route -> (departureAirport == null || departureAirport.equals(route.getAirportFrom()))

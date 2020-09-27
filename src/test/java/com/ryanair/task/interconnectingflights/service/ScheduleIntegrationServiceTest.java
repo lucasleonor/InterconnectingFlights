@@ -3,26 +3,31 @@ package com.ryanair.task.interconnectingflights.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.ryanair.task.interconnectingflights.dto.Connection;
 import com.ryanair.task.interconnectingflights.dto.Schedule;
 import net.bytebuddy.utility.RandomString;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Answers.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 class ScheduleIntegrationServiceTest {
     private static MockWebServer mockBackEnd;
@@ -57,17 +62,17 @@ class ScheduleIntegrationServiceTest {
 
     @Test
     void findSchedules() throws JsonProcessingException, InterruptedException {
-        List<Schedule> response = Arrays.asList(createSchedule(), createSchedule());
+        Schedule schedule = createSchedule();
         mockBackEnd.enqueue(new MockResponse()
-                .setBody(objectMapper.writeValueAsString(response))
+                .setBody(objectMapper.writeValueAsString(schedule))
                 .addHeader("Content-Type", "application/json"));
 
-        Set<Schedule> actual = scheduleIntegrationService.findSchedules(departure, arrival, year, String.valueOf(month));
+        Schedule actual = scheduleIntegrationService.findSchedules(departure, arrival, year, String.valueOf(month));
 
         RecordedRequest recordedRequest = mockBackEnd.takeRequest();
         assertThat(recordedRequest.getMethod(), is("GET"));
         assertThat(recordedRequest.getPath(), is(String.format("/%s/%s/years/%s/months/%s", departure, arrival, year, month)));
-        assertThat(actual, Matchers.containsInAnyOrder(response.toArray(new Schedule[0])));
+        assertThat(actual, is(schedule));
     }
 
     private Schedule createSchedule() {
@@ -84,7 +89,7 @@ class ScheduleIntegrationServiceTest {
     }
 
     private Schedule.Flight createFlight() {
-        return new Schedule.Flight(RandomString.make(), randomLocalTime(), randomLocalTime());
+        return new Schedule.Flight(randomLocalTime(), randomLocalTime());
     }
 
     private LocalTime randomLocalTime() {
@@ -92,4 +97,46 @@ class ScheduleIntegrationServiceTest {
         return LocalTime.of(random.nextInt(24), random.nextInt(60));
     }
 
+    private LocalDate randomLocalDate() {
+        Random random = new Random();
+        return LocalDate.of(random.nextInt(3000), random.nextInt(11) + 1, random.nextInt(27) + 1);
+    }
+
+    private LocalDateTime randomLocalDateTime() {
+        return LocalDateTime.of(randomLocalDate(), randomLocalTime());
+    }
+
+    @Test
+    void findAllFlights() {
+        scheduleIntegrationService = mock(ScheduleIntegrationService.class, CALLS_REAL_METHODS);
+        String departure = RandomString.make();
+        String arrival = RandomString.make();
+        LocalDateTime departureDateTime = randomLocalDate().atStartOfDay();
+        LocalDateTime arrivalDateTime = departureDateTime.plusDays(1);
+
+        Schedule.Flight flight = createFlight();
+        Schedule.Flight flight1 = createFlight();
+        doReturn(new Schedule(departureDateTime.getMonthValue(), Arrays.asList(
+                new Schedule.Day(departureDateTime.minusDays(2).getDayOfMonth(), Arrays.asList(
+                        createFlight(), createFlight()
+                )),
+                new Schedule.Day(arrivalDateTime.plusDays(2).getDayOfMonth(), Arrays.asList(
+                        createFlight(), createFlight()
+                )),
+                new Schedule.Day(departureDateTime.getDayOfMonth(), Arrays.asList(
+                        flight, flight1
+                ))))
+        ).when(scheduleIntegrationService).findSchedules(departure, arrival,
+                String.valueOf(departureDateTime.getYear()), String.valueOf(departureDateTime.getMonthValue()));
+
+        Set<Connection> allFlights = scheduleIntegrationService.findAllFlights(departure, arrival,
+                departureDateTime, arrivalDateTime);
+
+        LocalDate departureDate = departureDateTime.toLocalDate();
+        assertThat(allFlights, containsInAnyOrder(
+                new Connection(departure, arrival, departureDate.atTime(flight.getDepartureTime()), departureDate.atTime(flight.getArrivalTime())),
+                new Connection(departure, arrival, departureDate.atTime(flight1.getDepartureTime()), departureDate.atTime(flight1.getArrivalTime()))
+        ));
+
+    }
 }

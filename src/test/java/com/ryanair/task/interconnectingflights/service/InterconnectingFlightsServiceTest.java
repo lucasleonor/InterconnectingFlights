@@ -38,8 +38,7 @@ class InterconnectingFlightsServiceTest {
         String departure = RandomString.make();
         String connection = RandomString.make();
         String arrival = RandomString.make();
-        Random random = new Random();
-        LocalDateTime baseDateTime = LocalDateTime.of(random.nextInt(3000), random.nextInt(11) + 1, random.nextInt(27) + 1, random.nextInt(24), random.nextInt(60));
+        LocalDateTime baseDateTime = randomDateTime();
         Connection departureToConnection = new Connection(departure, connection, baseDateTime, baseDateTime.plusHours(3));
         Set<Connection> flightsDepartureToConnection = Set.of(
                 new Connection(departure, connection, baseDateTime, baseDateTime.plusHours(5)),
@@ -54,5 +53,10 @@ class InterconnectingFlightsServiceTest {
         Set<Interconnection> returnedInterconnections = service.matchFlights(flightsDepartureToConnection, flightsConnectionToArrival);
 
         assertThat(returnedInterconnections, containsInAnyOrder(new Interconnection(Set.of(departureToConnection, connectionToArrival))));
+    }
+
+    private LocalDateTime randomDateTime() {
+        Random random = new Random();
+        return LocalDateTime.of(random.nextInt(3000), random.nextInt(11) + 1, random.nextInt(27) + 1, random.nextInt(24), random.nextInt(60));
     }
 }

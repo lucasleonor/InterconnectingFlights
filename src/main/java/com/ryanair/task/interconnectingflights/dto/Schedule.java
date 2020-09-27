@@ -42,7 +42,6 @@ public class Schedule implements Serializable {
     @ToString
     public static class Flight implements Serializable {
 
-        private String number;
         @JsonFormat(pattern = "HH:mm")
         private LocalTime departureTime;
         @JsonFormat(pattern = "HH:mm")
