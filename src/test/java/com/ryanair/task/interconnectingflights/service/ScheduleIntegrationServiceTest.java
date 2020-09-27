@@ -3,6 +3,7 @@ package com.ryanair.task.interconnectingflights.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.ryanair.task.interconnectingflights.RandomDateTime;
 import com.ryanair.task.interconnectingflights.dto.Flight;
 import com.ryanair.task.interconnectingflights.dto.Schedule;
 import net.bytebuddy.utility.RandomString;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.Set;
@@ -37,12 +37,14 @@ class ScheduleIntegrationServiceTest {
     private String year;
     private String departure;
     private String arrival;
+    private static RandomDateTime dateTimeGenerator;
 
     @BeforeAll
     static void beforeAll() throws IOException {
         mockBackEnd = new MockWebServer();
         mockBackEnd.start();
         objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        dateTimeGenerator = new RandomDateTime();
     }
 
     @AfterAll
@@ -89,21 +91,7 @@ class ScheduleIntegrationServiceTest {
     }
 
     private Schedule.Flight createFlight() {
-        return new Schedule.Flight(randomLocalTime(), randomLocalTime());
-    }
-
-    private LocalTime randomLocalTime() {
-        Random random = new Random();
-        return LocalTime.of(random.nextInt(24), random.nextInt(60));
-    }
-
-    private LocalDate randomLocalDate() {
-        Random random = new Random();
-        return LocalDate.of(random.nextInt(3000), random.nextInt(11) + 1, random.nextInt(27) + 1);
-    }
-
-    private LocalDateTime randomLocalDateTime() {
-        return LocalDateTime.of(randomLocalDate(), randomLocalTime());
+        return new Schedule.Flight(dateTimeGenerator.randomLocalTime(), dateTimeGenerator.randomLocalTime());
     }
 
     @Test
@@ -111,7 +99,7 @@ class ScheduleIntegrationServiceTest {
         scheduleIntegrationService = mock(ScheduleIntegrationService.class, CALLS_REAL_METHODS);
         String departure = RandomString.make();
         String arrival = RandomString.make();
-        LocalDateTime departureDateTime = randomLocalDate().atStartOfDay();
+        LocalDateTime departureDateTime = dateTimeGenerator.randomLocalDate().atStartOfDay();
         LocalDateTime arrivalDateTime = departureDateTime.plusDays(1);
 
         Schedule.Flight flight = createFlight();
