@@ -3,7 +3,7 @@ package com.ryanair.task.interconnectingflights.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.ryanair.task.interconnectingflights.dto.Connection;
+import com.ryanair.task.interconnectingflights.dto.Flight;
 import com.ryanair.task.interconnectingflights.dto.Schedule;
 import net.bytebuddy.utility.RandomString;
 import okhttp3.mockwebserver.MockResponse;
@@ -129,13 +129,13 @@ class ScheduleIntegrationServiceTest {
         ).when(scheduleIntegrationService).findSchedules(departure, arrival,
                 String.valueOf(departureDateTime.getYear()), String.valueOf(departureDateTime.getMonthValue()));
 
-        Set<Connection> allFlights = scheduleIntegrationService.findAllFlights(departure, arrival,
+        Set<Flight> allFlights = scheduleIntegrationService.findAllFlights(departure, arrival,
                 departureDateTime, arrivalDateTime);
 
         LocalDate departureDate = departureDateTime.toLocalDate();
         assertThat(allFlights, containsInAnyOrder(
-                new Connection(departure, arrival, departureDate.atTime(flight.getDepartureTime()), departureDate.atTime(flight.getArrivalTime())),
-                new Connection(departure, arrival, departureDate.atTime(flight1.getDepartureTime()), departureDate.atTime(flight1.getArrivalTime()))
+                new Flight(departure, arrival, departureDate.atTime(flight.getDepartureTime()), departureDate.atTime(flight.getArrivalTime())),
+                new Flight(departure, arrival, departureDate.atTime(flight1.getDepartureTime()), departureDate.atTime(flight1.getArrivalTime()))
         ));
 
     }

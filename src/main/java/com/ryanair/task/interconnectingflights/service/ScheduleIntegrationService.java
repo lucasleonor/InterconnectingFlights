@@ -1,6 +1,6 @@
 package com.ryanair.task.interconnectingflights.service;
 
-import com.ryanair.task.interconnectingflights.dto.Connection;
+import com.ryanair.task.interconnectingflights.dto.Flight;
 import com.ryanair.task.interconnectingflights.dto.Schedule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,11 +33,11 @@ public class ScheduleIntegrationService extends Integration {
         ));
     }
 
-    public Set<Connection> findAllFlights(final String departure, final String arrival, final LocalDateTime departureDateTime, final LocalDateTime arrivalDateTime) {
+    public Set<Flight> findAllFlights(final String departure, final String arrival, final LocalDateTime departureDateTime, final LocalDateTime arrivalDateTime) {
         final LocalDate departureDate = departureDateTime.toLocalDate();
         final LocalDate arrivalDate = arrivalDateTime.toLocalDate();
 
-        final Set<Connection> flights = new HashSet<>();
+        final Set<Flight> flights = new HashSet<>();
         YearMonth flightsOn = YearMonth.from(departureDateTime);
         do {
             Schedule schedule = findSchedules(departure, arrival, String.valueOf(flightsOn.getYear()), String.valueOf(flightsOn.getMonthValue()));
@@ -48,7 +48,7 @@ public class ScheduleIntegrationService extends Integration {
                     final LocalDateTime flightDeparture = LocalDateTime.of(date, flight.getDepartureTime());
                     final LocalDateTime flightArrival = LocalDateTime.of(date, flight.getArrivalTime());
                     if (!flightDeparture.isBefore(departureDateTime) && !flightArrival.isAfter(arrivalDateTime))
-                        flights.add(new Connection(departure, arrival, flightDeparture, flightArrival));
+                        flights.add(new Flight(departure, arrival, flightDeparture, flightArrival));
                     // todo: do I need to check for edge cases? e.g. flight leaves at 11 pm and arrives at 1am on the following day
                 }
             }

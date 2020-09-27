@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class Connection implements Serializable {
+public class Flight implements Serializable {
     private String departureAirport;
     private String arrivalAirport;
     private LocalDateTime departureDateTime;

@@ -16,7 +16,7 @@ import java.util.Set;
 @EqualsAndHashCode
 public class Interconnection implements Serializable {
 
-    private Set<Connection> legs;
+    private Set<Flight> legs;
 
     public int getStops() {
         return legs == null || legs.isEmpty() ? 0 : legs.size() - 1;

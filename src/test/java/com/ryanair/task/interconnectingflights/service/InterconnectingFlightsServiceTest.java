@@ -1,6 +1,6 @@
 package com.ryanair.task.interconnectingflights.service;
 
-import com.ryanair.task.interconnectingflights.dto.Connection;
+import com.ryanair.task.interconnectingflights.dto.Flight;
 import com.ryanair.task.interconnectingflights.dto.Interconnection;
 import net.bytebuddy.utility.RandomString;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,18 +41,18 @@ class InterconnectingFlightsServiceTest {
         doReturn(Set.of(connection)).when(routeIntegrationService).getConnectingAirports(departure, arrival);
         LocalDateTime departureDateTime = randomDateTime();
         LocalDateTime arrivalDateTime = randomDateTime();
-        Connection directFlight = new Connection(departure, arrival, departureDateTime, arrivalDateTime);
+        Flight directFlight = new Flight(departure, arrival, departureDateTime, arrivalDateTime);
         doReturn(Set.of(
                 directFlight
         )).when(scheduleIntegrationService).findAllFlights(departure, arrival, departureDateTime, arrivalDateTime);
-        Connection flight1 = new Connection(departure, connection, departureDateTime, departureDateTime.plusHours(1));
+        Flight flight1 = new Flight(departure, connection, departureDateTime, departureDateTime.plusHours(1));
         doReturn(Set.of(
                 flight1,
-                new Connection(departure, connection, departureDateTime.plusHours(2), departureDateTime.plusHours(5))
+                new Flight(departure, connection, departureDateTime.plusHours(2), departureDateTime.plusHours(5))
         )).when(scheduleIntegrationService).findAllFlights(departure, connection, departureDateTime, arrivalDateTime);
-        Connection flight2 = new Connection(departure, connection, departureDateTime.plusHours(4), departureDateTime.plusHours(5));
+        Flight flight2 = new Flight(departure, connection, departureDateTime.plusHours(4), departureDateTime.plusHours(5));
         doReturn(Set.of(
-                new Connection(departure, connection, departureDateTime, departureDateTime.plusHours(2)),
+                new Flight(departure, connection, departureDateTime, departureDateTime.plusHours(2)),
                 flight2
         )).when(scheduleIntegrationService).findAllFlights(connection, arrival, departureDateTime, arrivalDateTime);
         Set<Interconnection> flights = service.findFlights(departure, arrival, departureDateTime, arrivalDateTime);
@@ -65,15 +65,15 @@ class InterconnectingFlightsServiceTest {
     @Test
     void matchFlights() {
         LocalDateTime baseDateTime = randomDateTime();
-        Connection departureToConnection = new Connection(departure, connection, baseDateTime, baseDateTime.plusHours(3));
-        Set<Connection> flightsDepartureToConnection = Set.of(
-                new Connection(departure, connection, baseDateTime, baseDateTime.plusHours(5)),
+        Flight departureToConnection = new Flight(departure, connection, baseDateTime, baseDateTime.plusHours(3));
+        Set<Flight> flightsDepartureToConnection = Set.of(
+                new Flight(departure, connection, baseDateTime, baseDateTime.plusHours(5)),
                 departureToConnection
         );
-        Connection connectionToArrival = new Connection(connection, arrival, baseDateTime.plusHours(5), baseDateTime.plusHours(10));
-        Set<Connection> flightsConnectionToArrival = Set.of(
+        Flight connectionToArrival = new Flight(connection, arrival, baseDateTime.plusHours(5), baseDateTime.plusHours(10));
+        Set<Flight> flightsConnectionToArrival = Set.of(
                 connectionToArrival,
-                new Connection(connection, arrival, baseDateTime.plusHours(3), baseDateTime.plusHours(6))
+                new Flight(connection, arrival, baseDateTime.plusHours(3), baseDateTime.plusHours(6))
         );
 
         Set<Interconnection> returnedInterconnections = service.matchFlights(flightsDepartureToConnection, flightsConnectionToArrival);
